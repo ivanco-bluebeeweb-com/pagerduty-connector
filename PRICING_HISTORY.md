@@ -1,3 +1,36 @@
+## 2026-08-21 (same day, later) — Live platform application confirmed via `developer.update_pricing`
+
+Deployed the app (`deploy_app` → 20/21, only the advisory "no files >300
+lines" warning remains — same class of warning MuleSoft/Stripe also
+carry), created the GitHub repo (public, `ivanco-bluebeeweb-com/pagerduty-connector`),
+registered the app on the platform (`developer.create_app`, category
+`automation`), then called `developer.update_pricing` **with the explicit
+`revenue_split_dev=95` parameter** (partner tier, per `create_app`'s own
+returned `revenue_split_dev: 95`) — not just inside `pricing_config`. This
+follows PRICING_POLICY.md §3 to the letter: an earlier `update_pricing`
+call in this same session omitted the top-level `revenue_split_dev`
+parameter and would have silently echoed success without the price
+actually reflecting in the panel (the exact MuleSoft/n8n-session bug the
+policy document exists to prevent) — caught and corrected before
+`submit_for_review`, not after.
+
+Sequence executed, in order: `deploy_app` → `update_pricing` (with
+`revenue_split_dev=95`) → `deploy_app` again (manifest re-sync) →
+`submit_for_review` (all 4 platform checks passed: git_url_https,
+display_name_set, description_set, last_deploy_succeeded) → app now
+`pending_review`.
+
+Per the platform's own known limitation (Imperal Cloud task #2113, still
+open as of this policy's writing): neither `update_pricing` nor any
+read-back tool (`marketplace.get_app_details`) actually echoes the saved
+`tool_prices` back — so this cannot be verified purely programmatically.
+The call included the required `revenue_split_dev` this time, which is
+documented as the confirmed-working method (n8n Connector, 2026-08-19).
+Final human visual confirmation in Developer → My Apps → PagerDuty →
+Pricing is still recommended before considering this fully closed.
+
+---
+
 # PagerDuty Connector — Pricing History
 
 Canonical scale and process: `/Users/vladivanco/Documents/Imperal OS/PRICING_POLICY.md`.
